@@ -1,0 +1,11 @@
+compile/xinu.elf
+compile/xinu.map
+compile/binaries/
+compile/.defs
+compile/.vers_num
+compile/version
+config/config
+config/lex.yy.c
+config/y.tab.c
+include/conf.h
+system/conf.c
