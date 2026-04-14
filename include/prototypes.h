@@ -350,6 +350,7 @@ extern	syscall	signaln(sid32, int32);
 /* in file sleep.c */
 extern	syscall	sleepms(int32);
 extern	syscall	sleep(int32);
+extern	syscall k2023202296_delay_run(int, void*, int, ...);
 
 /* in file start.S */
 extern	int32	inb(int32);
