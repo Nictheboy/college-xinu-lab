@@ -23,6 +23,9 @@ const	struct	cmdent	cmdtab[] = {
 	{"sleep",	FALSE,	xsh_sleep},
 	{"uptime",	FALSE,	xsh_uptime},
 	{"lab2",	FALSE,	u2023202296_xsh_lab2},
+	/*Lab3 2023202296: Begin*/
+	{"lab3",	FALSE,	u2023202296_xsh_lab3},
+	/*Lab3 2023202296: End*/
 	{"?",		FALSE,	xsh_help}
 
 };
@@ -273,9 +276,17 @@ process	shell (
 
 		/* Spawn child thread for non-built-in commands */
 
-		child = create(cmdtab[j].cfunc,
-			SHELL_CMDSTK, SHELL_CMDPRIO,
-			cmdtab[j].cname, 2, ntok, &tmparg);
+		/*Lab3 2023202296: Begin*/
+		if (strncmp(cmdtab[j].cname, "lab3", 4) == 0) {
+			child = k2023202296_create_user_proc(cmdtab[j].cfunc,
+				SHELL_CMDSTK, SHELL_CMDPRIO,
+				cmdtab[j].cname, 2, ntok, &tmparg);
+		} else {
+			child = create(cmdtab[j].cfunc,
+				SHELL_CMDSTK, SHELL_CMDPRIO,
+				cmdtab[j].cname, 2, ntok, &tmparg);
+		}
+		/*Lab3 2023202296: End*/
 
 		/* If creation or argument copy fails, report error */
 

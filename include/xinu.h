@@ -25,5 +25,8 @@
 #include <multiboot.h>
 #include <stdio.h>
 #include <string.h>
+/*Lab3 2023202296: Begin*/
+#include <Lab3.h>
+/*Lab3 2023202296: End*/
 
 

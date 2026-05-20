@@ -48,8 +48,18 @@ status	addargs(
 	/*	args array will be stored followed by the argument	*/
 	/*	strings							*/
 	
-	aloc = (uint32) (prptr->prstkbase
-		- prptr->prstklen + sizeof(uint32));
+	/*Lab3 2023202296: Begin*/
+	char *stkbase;
+	uint32 stklen;
+	if (prptr->prisuser) {
+		stkbase = prptr->prusrstkbase;
+		stklen = prptr->prusrstklen;
+	} else {
+		stkbase = prptr->prstkbase;
+		stklen = prptr->prstklen;
+	}
+	aloc = (uint32) (stkbase - stklen + sizeof(uint32));
+	/*Lab3 2023202296: End*/
 	argloc = (uint32*) ((aloc + 3) & ~0x3);	/* round multiple of 4	*/
 
 	/* Compute the first location beyond args array for the strings	*/
