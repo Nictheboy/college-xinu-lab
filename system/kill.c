@@ -30,6 +30,11 @@ syscall	kill(
 		close(prptr->prdesc[i]);
 	}
 	freestk(prptr->prstkbase, prptr->prstklen);
+	/*Lab3 2023202296: Begin*/
+	if (prptr->prisuser) {
+		freestk(prptr->prusrstkbase, prptr->prusrstklen);
+	}
+	/*Lab3 2023202296: End*/
 
 	switch (prptr->prstate) {
 	case PR_CURR:

@@ -41,6 +41,11 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* Reset time slice for process	*/
+	/*Lab3 2023202296: Begin*/
+	if (ptnew->prisuser) {
+		k2023202296_tss.esp0 = (uint32)ptnew->prstkbase;
+	}
+	/*Lab3 2023202296: End*/
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 
 	/* Old process returns here when resumed */

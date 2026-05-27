@@ -127,6 +127,7 @@ void	getattrid(char *);
 void	newdev(char *);
 int	newtype(char *);
 void	yyerror(char *);
+int	yylex(void);
 
 
 %}

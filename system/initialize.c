@@ -201,6 +201,9 @@ static	void	sysinit()
 	for (i = 0; i < NDEVS; i++) {
 		init(i);
 	}
+	/*Lab3 2023202296: Begin*/
+	k2023202296_lab3_init();
+	/*Lab3 2023202296: End*/
 	return;
 }
 
