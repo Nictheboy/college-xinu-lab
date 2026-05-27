@@ -352,6 +352,11 @@ extern	syscall	sleepms(int32);
 extern	syscall	sleep(int32);
 extern	syscall k2023202296_delay_run(int, void*, int, ...);
 
+/* in file fork.c */
+extern	syscall	k2023202296_fork(void);
+extern	syscall	k2023202296_exec(void *, pri16, char *, uint32, ...);
+
+
 /* in file start.S */
 extern	int32	inb(int32);
 extern	int32	inw(int32);
