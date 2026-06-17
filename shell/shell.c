@@ -26,6 +26,9 @@ const	struct	cmdent	cmdtab[] = {
 	/*Lab3 2023202296: Begin*/
 	{"lab3",	FALSE,	u2023202296_xsh_lab3},
 	/*Lab3 2023202296: End*/
+	/*Lab4 2023202296: Begin*/
+	{"lab4",	FALSE,	u2023202296_xsh_lab4},
+	/*Lab4 2023202296: End*/
 	{"?",		FALSE,	xsh_help}
 
 };
@@ -276,6 +279,22 @@ process	shell (
 
 		/* Spawn child thread for non-built-in commands */
 
+		/*Lab4 2023202296: Begin*/
+		if (strncmp(cmdtab[j].cname, "lab4", 4) == 0) {
+			/* Paged user process.  Build the argv vector here	*/
+			/* (pointers into tokbuf, which stays mapped in the	*/
+			/* shared kernel region while the shell blocks).	*/
+			for (i = 0; i < ntok; i++)
+				args[i] = &tokbuf[tok[i]];
+			args[ntok] = NULL;
+			child = k2023202296_create_vproc(cmdtab[j].cfunc,
+				cmdtab[j].cname, ntok, args);
+			if (child == SYSERR) {
+				fprintf(dev, SHELL_CREATMSG);
+				continue;
+			}
+		} else {
+		/*Lab4 2023202296: End*/
 		/*Lab3 2023202296: Begin*/
 		if (strncmp(cmdtab[j].cname, "lab3", 4) == 0) {
 			child = k2023202296_create_user_proc(cmdtab[j].cfunc,
@@ -296,6 +315,9 @@ process	shell (
 			fprintf(dev, SHELL_CREATMSG);
 			continue;
 		}
+		/*Lab4 2023202296: Begin*/
+		}
+		/*Lab4 2023202296: End*/
 
 		/* Set stdinput and stdoutput in child to redirect I/O */
 

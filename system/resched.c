@@ -46,6 +46,14 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 		k2023202296_tss.esp0 = (uint32)ptnew->prstkbase;
 	}
 	/*Lab3 2023202296: End*/
+	/*Lab4 2023202296: Begin*/
+	/* Switch to the target process's address space.  The kernel region	*/
+	/* is identical in every page directory, so the code that follows	*/
+	/* (ctxsw) remains mapped across the CR3 load.				*/
+	if (ptnew->prpgdir != 0) {
+		asm volatile("movl %0, %%cr3" : : "r"(ptnew->prpgdir) : "memory");
+	}
+	/*Lab4 2023202296: End*/
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 
 	/* Old process returns here when resumed */

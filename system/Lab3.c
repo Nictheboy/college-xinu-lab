@@ -154,7 +154,11 @@ void k2023202296_syscall_handler(uint32 *regs) {
 			k2023202296_user_exit_internal();
 			break;
 		default:
-			regs[7] = SYSERR;
+			/*Lab4 2023202296: Begin*/
+			if (!k2023202296_lab4_syscall(num, regs)) {
+				regs[7] = SYSERR;
+			}
+			/*Lab4 2023202296: End*/
 			break;
 	}
 }
@@ -270,7 +274,13 @@ pid32 k2023202296_create_user_proc_internal(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
-	
+	/*Lab4 2023202296: Begin*/
+	/* Lab3 user processes keep their (low-memory) user stack inside the	*/
+	/* shared kernel region, so they run in the master address space.	*/
+	prptr->prpgdir = (uint32)k2023202296_kernel_pgdir;
+	prptr->prvm = FALSE;
+	/*Lab4 2023202296: End*/
+
 	prptr->prdesc[0] = CONSOLE;
 	prptr->prdesc[1] = CONSOLE;
 	prptr->prdesc[2] = CONSOLE;

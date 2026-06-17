@@ -31,9 +31,15 @@ syscall	kill(
 	}
 	freestk(prptr->prstkbase, prptr->prstklen);
 	/*Lab3 2023202296: Begin*/
-	if (prptr->prisuser) {
+	/*Lab4 2023202296: Begin*/
+	if (prptr->prvm) {
+		/* Paged process: release page directory, page table and	*/
+		/* every frame it owns back to the physical frame pool.		*/
+		k2023202296_free_vproc(prptr);
+	} else if (prptr->prisuser) {
 		freestk(prptr->prusrstkbase, prptr->prusrstklen);
 	}
+	/*Lab4 2023202296: End*/
 	/*Lab3 2023202296: End*/
 
 	switch (prptr->prstate) {

@@ -188,7 +188,10 @@ static	void	sysinit()
 
 	/* Initialize buffer pools */
 
-	bufinit();
+	/*Lab4 2023202296: Begin*/
+	/* bufinit() is disabled for the paged-memory lab (req 2.6.e) */
+	/* bufinit(); */
+	/*Lab4 2023202296: End*/
 
 	/* Create a ready list for processes */
 
@@ -204,6 +207,12 @@ static	void	sysinit()
 	/*Lab3 2023202296: Begin*/
 	k2023202296_lab3_init();
 	/*Lab3 2023202296: End*/
+	/*Lab4 2023202296: Begin*/
+	/* Build the kernel page directory and turn on paging.  Must be the	*/
+	/* last step of sysinit: it trims the heap to the identity-mapped	*/
+	/* region and enables CR0.PG while the boot/null stack stays valid.	*/
+	k2023202296_vminit();
+	/*Lab4 2023202296: End*/
 	return;
 }
 

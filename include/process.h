@@ -59,6 +59,11 @@ struct procent {		/* Entry in the process table		*/
 	bool8	prisuser;	/* Whether this is a user-mode process	*/
 	void	*prusrfuncaddr;	/* User process function address	*/
 	/*Lab3 2023202296: End*/
+	/*Lab4 2023202296: Begin*/
+	uint32	prpgdir;	/* Physical addr of page directory (CR3)*/
+	bool8	prvm;		/* Has a private paged address space	*/
+	uint32	prheaptop;	/* Next free VA in the paged user heap	*/
+	/*Lab4 2023202296: End*/
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

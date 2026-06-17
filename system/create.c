@@ -49,6 +49,17 @@ pid32	create(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
+	/*Lab4 2023202296: Begin*/
+	/* Kernel-mode processes run in the shared kernel address space.	*/
+	/* Clear the user-mode fields too: a reused slot may still hold	*/
+	/* stale prisuser/prusrstkbase from a previous Lab3/Lab4 process,	*/
+	/* which would make addargs() write to an unmapped user address.	*/
+	prptr->prpgdir = (uint32)k2023202296_kernel_pgdir;
+	prptr->prvm = FALSE;
+	prptr->prisuser = FALSE;
+	prptr->prusrstkbase = NULL;
+	prptr->prusrstklen = 0;
+	/*Lab4 2023202296: End*/
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;

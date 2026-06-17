@@ -28,5 +28,8 @@
 /*Lab3 2023202296: Begin*/
 #include <Lab3.h>
 /*Lab3 2023202296: End*/
+/*Lab4 2023202296: Begin*/
+#include <Lab4.h>
+/*Lab4 2023202296: End*/
 
 
