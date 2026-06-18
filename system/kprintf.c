@@ -17,7 +17,9 @@ syscall kputc(byte c)	/* Character to write	*/
 	/* Disable interrupts */
 	mask = disable();
 
-	devptr = (struct dentry *) &devtab[CONSOLE];
+	/* Lab5 2023202296: CONSOLE is now the keyboard+VGA device, so the	*/
+	/* polled serial path talks to the dedicated SERIAL (COM1) device.	*/
+	devptr = (struct dentry *) &devtab[SERIAL];
 	csrptr = (struct uart_csreg *)devptr->dvcsr;
 
 	/* Fail if no console device was found */
@@ -43,6 +45,13 @@ syscall kputc(byte c)	/* Character to write	*/
 		outb((int)&csrptr->buffer, '\r');
 	}
 
+	/*Lab5 2023202296: Begin*/
+	/* Mirror polled kernel output onto the VGA text terminal so the	*/
+	/* boot banner, VERSION, [vm] logs and panics appear on screen	*/
+	/* (the serial write above is kept as the 2.5a mirror).		*/
+	k2023202296_term_putc(c);
+	/*Lab5 2023202296: End*/
+
 	restore(mask);
 	return OK;
 }
@@ -62,7 +71,8 @@ syscall kgetc(void)
 	/* Disable interrupts */
 	mask = disable();
 
-	devptr = (struct dentry *) &devtab[CONSOLE];
+	/* Lab5 2023202296: read the polled serial line from SERIAL (COM1).	*/
+	devptr = (struct dentry *) &devtab[SERIAL];
 	csrptr = (struct uart_csreg *)devptr->dvcsr;
 
 	/* Fail if no console device was found */

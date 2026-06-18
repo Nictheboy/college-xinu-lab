@@ -29,6 +29,9 @@ const	struct	cmdent	cmdtab[] = {
 	/*Lab4 2023202296: Begin*/
 	{"lab4",	FALSE,	u2023202296_xsh_lab4},
 	/*Lab4 2023202296: End*/
+	/*Lab5 2023202296: Begin*/
+	{"lab5",	FALSE,	u2023202296_xsh_lab5},
+	/*Lab5 2023202296: End*/
 	{"?",		FALSE,	xsh_help}
 
 };
@@ -280,7 +283,9 @@ process	shell (
 		/* Spawn child thread for non-built-in commands */
 
 		/*Lab4 2023202296: Begin*/
-		if (strncmp(cmdtab[j].cname, "lab4", 4) == 0) {
+		/*Lab5 2023202296: lab5 is also a paged user process	*/
+		if (strncmp(cmdtab[j].cname, "lab4", 4) == 0 ||
+		    strncmp(cmdtab[j].cname, "lab5", 4) == 0) {
 			/* Paged user process.  Build the argv vector here	*/
 			/* (pointers into tokbuf, which stays mapped in the	*/
 			/* shared kernel region while the shell blocks).	*/

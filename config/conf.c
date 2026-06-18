@@ -19,12 +19,12 @@ struct	dentry	devtab[NDEVS] =
  * dev-csr-address, intr-handler, irq
  */
 
-/* CONSOLE is tty */
+/* CONSOLE is kvd */
 	{ 0, 0, "CONSOLE",
-	  (void *)ttyinit, (void *)ionull, (void *)ionull,
-	  (void *)ttyread, (void *)ttywrite, (void *)ioerr,
-	  (void *)ttygetc, (void *)ttyputc, (void *)ttycontrol,
-	  (void *)0x3f8, (void *)ttydispatch, 36 },
+	  (void *)k2023202296_kvdinit, (void *)ionull, (void *)ionull,
+	  (void *)k2023202296_kvdread, (void *)k2023202296_kvdwrite, (void *)ioerr,
+	  (void *)k2023202296_kvdgetc, (void *)k2023202296_kvdputc, (void *)k2023202296_kvdcontrol,
+	  (void *)0x60, (void *)k2023202296_kbd_dispatch, 33 },
 
 /* NULLDEV is null */
 	{ 1, 0, "NULLDEV",
@@ -94,5 +94,12 @@ struct	dentry	devtab[NDEVS] =
 	  (void *)lflinit, (void *)ioerr, (void *)lflclose,
 	  (void *)lflread, (void *)lflwrite, (void *)lflseek,
 	  (void *)lflgetc, (void *)lflputc, (void *)lflcontrol,
-	  (void *)0x0, (void *)ionull, 0 }
+	  (void *)0x0, (void *)ionull, 0 },
+
+/* SERIAL is tty */
+	{ 11, 0, "SERIAL",
+	  (void *)ttyinit, (void *)ionull, (void *)ionull,
+	  (void *)ttyread, (void *)ttywrite, (void *)ioerr,
+	  (void *)ttygetc, (void *)ttyputc, (void *)ttycontrol,
+	  (void *)0x3f8, (void *)ttydispatch, 36 }
 };

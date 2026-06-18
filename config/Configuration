@@ -32,6 +32,14 @@ tty:
 		-w ttywrite     -s ioerr        -n ttycontrol
 		-intr ttydispatch
 
+/* Lab5 2023202296: keyboard + graphics-mode VGA console device	*/
+kvd:
+	on ps2
+		-i k2023202296_kvdinit	-o ionull		-c ionull
+		-r k2023202296_kvdread	-g k2023202296_kvdgetc	-p k2023202296_kvdputc
+		-w k2023202296_kvdwrite	-s ioerr		-n k2023202296_kvdcontrol
+		-intr k2023202296_kbd_dispatch
+
 /* type of ram disk */
 ram:
 	on mem
@@ -69,8 +77,9 @@ nam:
 /* Actual device declarations that each give the name of a device that	*/
 /*   will be present in the system					*/
 
-   /* Define the console device to be a tty and specify CSR*/
-   CONSOLE is tty  on uart  csr 0001770 -irq 0044
+   /* Lab5 2023202296: the console is now the keyboard + VGA device.	*/
+   /* Keyboard data port is 0x60, IRQ1 -> interrupt vector 33.		*/
+   CONSOLE is kvd  on ps2  csr 0x60 -irq 33
 
    /* Define a null device */
    NULLDEV is null on nothing
@@ -93,6 +102,12 @@ nam:
    LFILE3 is lfl on lfs
    LFILE4 is lfl on lfs
    LFILE5 is lfl on lfs
+
+   /* Lab5 2023202296: keep the COM1 UART as a separate device so the	*/
+   /* kernel can still mirror output to the serial line (req 2.5.a) and	*/
+   /* so kputc/kgetc have a real UART to talk to.  Placed last so the	*/
+   /* existing device numbers are unchanged.				*/
+   SERIAL is tty on uart csr 0x3F8 -irq 36
 
 %%
 

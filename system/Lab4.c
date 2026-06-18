@@ -594,6 +594,13 @@ void k2023202296_vminit(void)
 	kprintf("[vm] boot/null stack region 0x%08X-0x%08X identity\n",
 		boot_base, boot_base + 0x3FFFFF);
 
+	/*Lab5 2023202296: Begin*/
+	/* identity-map the VGA framebuffer aperture so the text terminal	*/
+	/* keeps working after CR0.PG is set (and in every process, since	*/
+	/* per-process page directories are copied from this one).		*/
+	k2023202296_map_framebuffer(k2023202296_kernel_pgdir);
+	/*Lab5 2023202296: End*/
+
 	/* 7. load CR3 and turn on paging */
 	pdp = (uint32)k2023202296_kernel_pgdir;
 	asm volatile(

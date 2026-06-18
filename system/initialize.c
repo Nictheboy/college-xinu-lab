@@ -133,6 +133,12 @@ static	void	sysinit()
 
 	platinit();
 
+	/*Lab5 2023202296: Begin*/
+	/* Bring up the graphics-mode framebuffer before any console	*/
+	/* output, so the boot banner can be rendered on the VGA screen.	*/
+	k2023202296_video_init();
+	/*Lab5 2023202296: End*/
+
 	/* Reset the console */
 
 	kprintf(CONSOLE_RESET);

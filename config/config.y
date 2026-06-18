@@ -45,7 +45,8 @@ extern	int	yyleng;
 #define CONFH	 "conf.h"		/* Name of .h output			*/
 #define	CONFHREF "<conf.h>"		/* How conf.h referenced		*/
 #define	INFILE	 "Configuration"	/* Name of input file			*/
-#define	MAXNAME  16			/* Max length of names			*/
+#define	MAXNAME  40			/* Lab5 2023202296: raised 16->40 so the
+					   required k2023202296_ prefix fits	*/
 
 #define	NDEVS		250		/* Max devices				*/
 #define	NTYPES		250		/* Max device types			*/

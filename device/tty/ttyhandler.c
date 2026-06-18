@@ -14,9 +14,10 @@ void ttyhandler(void)
 	byte	iir = 0;		/* Interrupt identification	*/
 
 
-	/* Get CSR address of the device (assume console for now) */
+	/* Get CSR address of the device				*/
+	/* Lab5 2023202296: the only tty device is now SERIAL (COM1).	*/
 
-	devptr = (struct dentry *) &devtab[CONSOLE];
+	devptr = (struct dentry *) &devtab[SERIAL];
 	csrptr = (struct uart_csreg *) devptr->dvcsr;
 
 	/* Obtain a pointer to the tty control block */
