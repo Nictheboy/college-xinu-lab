@@ -1,10 +1,10 @@
-# 实验 5（期末大作业） 键盘与显示器驱动 实验报告
+# 实验 5 键盘与显示器驱动 实验报告
 
 2023202296 李甘
 
-本实验选择第 1 条：实现键盘与显示器驱动。实验允许文本模式显示器用图形模式代替，本实验采用图形模式：通过 Bochs/QEMU 的 VBE(DISPI) 接口把显卡切到 640x480x32 线性帧缓冲，再用内置 8x16 点阵字库在帧缓冲上自绘字符，得到一个 80 列 x 30 行、带颜色、软光标和上滚的文本终端；键盘部分实现 PS/2 键盘(IRQ1，扫描码 set1)驱动。二者合成一个新设备类型 kvd，并把原 CONSOLE 设备改成该类型，于是 shell、ps、lab3、lab4 等所有原有交互无需改业务代码即自动渲染到 VGA。学号姓名按要求用拼音输出为 2023202296 Li Gan。
+本实验选择第 1 条：实现键盘与显示器驱动。
 
-因为要用 QEMU 的图形第一屏，原来含 -nographic 的运行方式不再适用，运行/测试方式见后文"编译与运行"。
+实验允许文本模式显示器用图形模式代替，本实验采用图形模式：通过 Bochs/QEMU 的 VBE(DISPI) 接口把显卡切到 640x480x32 线性帧缓冲，再用内置 8x16 点阵字库在帧缓冲上自绘字符，得到一个 80 列 x 30 行、带颜色、软光标和上滚的文本终端；键盘部分实现 PS/2 键盘(IRQ1，扫描码 set1)驱动。
 
 ## 新增的文件和修改过的原有代码文件
 
@@ -16,11 +16,19 @@ config/conf.c、conf.h(及安装到 system/、include/ 的副本)是配置程序
 
 ## 特殊按键与特殊字符的支持情况
 
-大写锁定键 CapsLock(扫描码 0x3A)按下时翻转 caps 状态，字母大小写取 Shift 异或 CapsLock；左右 Shift(0x2A/0x36)按下置位、松开清零，字母配合 CapsLock 决定大小写、符号查移位表；Ctrl(0x1D)按住时字母返回控制码 letter&0x1F，其中 Ctrl+H 即退格、Ctrl+I 即 Tab、Ctrl+M 即回车，其余 Ctrl+字母以 ^X 形式回显；Tab(0x0F)产生 \t，存入行缓冲并推进到下一个 8 列制表位；回车 Enter(0x1C)提交整行加 \n、唤醒 read()；退格 Backspace(0x0E，与 Ctrl+H、DEL 0x7F 等价)删除光标左侧字符，行尾删回显 "\b \b"，空行退格不动。特殊字符方面，终端 term_putc 对 \n 换行(满屏上滚)、\r 回到本行第 0 列、\t 推进到制表位分别处理。此外额外实现了实验未强制要求的左右光标(2.5.c)以及 Home/End/Delete，见 Lab5_kbd.c 的 k5_extended。
+大写锁定键 CapsLock(扫描码 0x3A)按下时翻转 caps 状态，字母大小写取 Shift 异或 CapsLock；左右 Shift(0x2A/0x36)按下置位、松开清零，字母配合 CapsLock 决定大小写、符号查移位表；Ctrl(0x1D)按住时字母返回控制码 letter&0x1F，其中 Ctrl+H 即退格、Ctrl+I 即 Tab、Ctrl+M 即回车，其余 Ctrl+字母以 ^X 形式回显；Tab(0x0F)产生 \t，存入行缓冲并推进到下一个 8 列制表位；回车 Enter(0x1C)提交整行加 \n、唤醒 read()；退格 Backspace(0x0E，与 Ctrl+H、DEL 0x7F 等价)删除光标左侧字符，行尾删回显 "\b \b"，空行退格不动。
+
+特殊字符方面，终端 term_putc 对 \n 换行(满屏上滚)、\r 回到本行第 0 列、\t 推进到制表位分别处理。
+
+此外额外实现了实验未强制要求的左右光标(2.5.c)以及 Home/End/Delete，见 Lab5_kbd.c 的 k5_extended。
 
 ## 设计思路与地址空间
 
-现有 Xinu 全部交互都过 CONSOLE(设备 0)：main 用 CONSOLE 创建 shell，shell/ps/lab3/lab4 都用 CONSOLE 描述符做 read/write/putc，kprintf 则直接轮询 CONSOLE 的 UART。因此只要把 CONSOLE 这个设备换成"键盘+VGA"，上层就自动改用显示器与键盘，改动面最小。输出方向 printf/write 经 putc(CONSOLE) 到 kvdputc，写帧缓冲并镜像到串口；kprintf 经 kputc 同样写帧缓冲加串口。输入方向 PS/2 键盘 IRQ1 进 kbd_dispatch、kbd_handler 解码行编辑回显，提交进输入队列供 read(CONSOLE) 取走。
+现有 Xinu 全部交互都过 CONSOLE(设备 0)：main 用 CONSOLE 创建 shell，shell/ps/lab3/lab4 都用 CONSOLE 描述符做 read/write/putc，kprintf 则直接轮询 CONSOLE 的 UART。因此只要把 CONSOLE 这个设备换成"键盘+VGA"，上层就自动改用显示器与键盘，改动面最小。
+
+二者合成一个新设备类型 kvd，并把原 CONSOLE 设备改成该类型，于是 shell、ps、lab3、lab4 等所有原有交互无需改业务代码即自动渲染到 VGA。学号姓名按要求用拼音输出为 2023202296 Li Gan。
+
+输出方向 printf/write 经 putc(CONSOLE) 到 kvdputc，写帧缓冲并镜像到串口；kprintf 经 kputc 同样写帧缓冲加串口。输入方向 PS/2 键盘 IRQ1 进 kbd_dispatch、kbd_handler 解码行编辑回显，提交进输入队列供 read(CONSOLE) 取走。
 
 帧缓冲在分页开启后仍要能写，于是在 vminit 把它恒等映射进主内核页目录，而每个进程页目录都从主内核页目录拷贝，故每个地址空间都含此映射。一个 lab5 用户进程的地址空间(沿用实验 4 布局，新增帧缓冲段)：
 
@@ -908,94 +916,86 @@ make
 make
 ```
 
-由于要用 QEMU 的图形第一屏，不能再用 -nographic。用 VNC 方式启动，并把串口接到文件便于核对：
+由于要用 QEMU 的图形第一屏，不能再用 -nographic。用如下命令启动：
 
 ```text
-qemu-system-i386 -kernel xinu.elf -vnc :3 \
-    -monitor unix:/tmp/mon.sock,server,nowait \
-    -serial file:/tmp/serial.log
+qemu-system-i386 -kernel xinu.elf
 ```
 
-用 VNC Viewer 连接 IP:3(本机用 localhost:3)即可看到 VGA 屏幕并键入；也可直接 qemu-system-i386 -kernel xinu.elf 打开默认窗口观看。自测时通过 QEMU 监视器 screendump 截屏、sendkey 注入按键(如 sendkey shift-a、sendkey caps_lock、sendkey ctrl-a、sendkey tab、sendkey backspace、sendkey left)。本内核即 GRUB 可引导的 xinu.elf，制作启动盘时以 multiboot 引导该文件即可。
-
-## 验证一：启动横幅、红色 XINU 标识与提示符都在 VGA(2.3.a、2.5.b)
+## 验证一：启动横幅、红色 XINU 标识与提示符都在 VGA
 
 开机后 VGA 第一屏即显示内核启动信息、红色大号 XINU 标识、Welcome to Xinu! 与 xsh $ 提示符。红色来自 shell 横幅自带的 \033[31;1m，被终端 ANSI 解析渲染为亮红。
 
 ![启动与红色 XINU 标识](./fig01_boot_redlogo.png)
 
-## 验证二：Shift / 大写锁定 / Tab / Ctrl(2.3.b、2.3.h)
+## 验证二：Shift / 大写锁定 / Tab / Ctrl
 
 依次按 Shift+H、i、空格、CapsLock、a b c(变 ABC)、CapsLock、空格、Tab、Ctrl+A，屏幕实时回显 Hi ABC、制表空隙、^A，每个字符即时回显。
 
 ![Shift/CapsLock/Tab/Ctrl](./fig02_specialkeys.png)
 
-## 验证三：退格键 Backspace / Ctrl+H(2.3.b)
+## 验证三：退格键 Backspace / Ctrl+H
 
 输入 Hello WORLD 1@*(WORLD 用大写锁定、@ * 用 Shift)，再按三次退格删除 1@*，最后 Ctrl+A 显示 ^A。
 
 ![退格与 Ctrl 组合](./fig03_backspace_ctrl.png)
 
-## 验证四：空输入时继续退格不破坏提示符(2.3.f)
+## 验证四：空输入时继续退格不破坏提示符
 
 空白提示符处连按 5 次退格，提示符 xsh $ 不被吃掉；随后输入 ok 紧跟提示符出现。
 
 ![空行退格](./fig04_empty_backspace.png)
 
-## 验证五：ps 命令运行于 VGA 显示器(2.3.c、2.3.d)
+## 验证五：ps 命令运行于 VGA 显示器
 
 ps 的进程表完整渲染在 VGA 上；输出超过一屏时整屏上滚(见验证十一)。
 
 ![ps 命令](./fig05_ps.png)
 
-## 验证六：超过一行的输入自动折行(2.3.e)
+## 验证六：超过一行的输入自动折行
 
 提示符处连续输入 92 个字符，超过 80 列后自动折到下一行，光标随之到第二行。
 
 ![超长输入折行](./fig06_longinput_wrap.png)
 
-## 验证七：提示符在最后一行时回车上滚(2.3.g)
+## 验证七：提示符在最后一行时回车上滚
 
 连续回车把提示符推到最后一行后继续回车，屏幕整屏上滚一行、提示符始终停在最后一行可见。
 
 ![最后一行回车上滚](./fig07_lastrow_enter.png)
 
-## 验证八：左右光标与行内编辑(2.5.c)
+## 验证八：左右光标与行内编辑
 
 输入 2026，按 ← 四次把光标移到行首，再输入 -lab5-，字符被插入到光标处而非追加，得到 -lab5-2026(2026 整体右移)。代码见 Lab5_kbd.c 的 k5_extended 与 k5_redraw_tail。
 
 ![左右光标与行内插入](./fig08_arrow_insert.png)
 
-## 验证九：xsh_lab5 运行于分页用户态并查看/释放内存(2.2.a/b/c/e)
+## 验证九：xsh_lab5 运行于分页用户态并查看/释放内存
 
 执行 lab5 foo，输出 CPL=3、局部变量地址 &x、所有参数、学号姓名(拼音)，并 dumpmap 打印内存映射(可见本实验新增的 0xFD000000 帧缓冲段)；进程正常结束后逐页 [vm] free 释放用户栈、页表与页目录(CR3)。
 
 ![lab5 基本信息 + 内存映射 + 释放](./fig09_lab5_basic.png)
 
-## 验证十：长行 / 符号 / Tab / 回车(2.2.d)
+## 验证十：长行 / 符号 / Tab / 回车
 
 执行 lab5 chars：输出数字、大小写字母、各种符号；\t 把字段对齐到制表位；\r 测试 aaaaaaaa\rBBBB 在屏幕上覆盖为 BBBBaaaa；最后 120 列长串在第 80 列折行。
 
 ![长行/符号/Tab/回车](./fig10_lab5_chars.png)
 
-## 验证十一：超过一屏的多行输出与上滚(2.2.d、2.3.d)
+## 验证十一：超过一屏的多行输出与上滚
 
 执行 lab5 scroll：打印 40 行(屏高 30 行)，屏幕逐行上滚，最终停在第 21 至 40 行加结束语加进程释放日志。
 
 ![多行上滚](./fig11_lab5_scroll.png)
 
-## 验证十二：实验 4 的 lab4 命令在 VGA 上正常运行(2.4)
+## 验证十二：实验 4 的 lab4 命令在 VGA 上正常运行
 
 执行 lab4 1：分页用户进程 fork 出子进程，父子在同一虚拟地址 0x3fffffa0 下，子进程把 lvar 改成 999 而父进程仍读到 111(地址空间隔离)，结束后地址空间完整释放，全部渲染在 VGA 上。
 
 ![lab4 在 VGA 上运行](./fig12_lab4.png)
 
-## 验证十三：实验 3 的 lab3 命令在 VGA 上正常运行(2.4)
+## 验证十三：实验 3 的 lab3 命令在 VGA 上正常运行
 
 执行 lab3：三个用户态子进程均以 CS=0x23(CPL=3) 正确运行，全部显示在 VGA 上。
 
 ![lab3 在 VGA 上运行](./fig13_lab3.png)
-
-## 几点说明
-
-设备名取为 kvd(keyboard + video device)，逻辑设备仍叫 CONSOLE(设备号 0 不变)，以最小改动复用 shell/main/lab3/lab4 的现有代码。内核写帧缓冲均发生在 CPL=0，故帧缓冲映射为 supervisor-only，用户态无法直接写显存。扩展要求方面：2.5.a 命令输出经 k5_emit 同时送 VGA 与 COM1 串口、键盘输入的回显也同时出现在两块屏幕；2.5.b 终端内置 ANSI SGR 解析使 XINU 标识显示为红色；2.5.c 实现了左右光标加 Home/End/Delete 的行内编辑。终端采用 RAM 后备缓冲加单元 blit 的双缓冲方案，避免闪烁并加速上滚，亦回应思维扩展 3.1。所有代码为标准 -m32 C 与少量与实验 4 同款的文件级内联汇编，无外部依赖，可在实验 2 所述服务器上 make clean 后编译通过。
